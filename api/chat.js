@@ -20,19 +20,11 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'prompt-caching-2024-07-31',
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 250,
-        system: [
-          {
-            type: 'text',
-            // 프롬프트 캐싱: 시스템 프롬프트는 고정이므로 캐싱 → 90% 비용 절감
-            cache_control: { type: 'ephemeral' },
-            text: `CS 챗봇. 제공된 정책만 근거로 2~3문장 한국어 답변. 금기어(몰라요/안됩니다/고객님책임/법대로) 금지. 정책 외 내용은 "담당자 확인 후 안내드리겠습니다" 답변.`
-          }
-        ],
+        system: `CS 챗봇. 제공된 정책만 근거로 2~3문장 한국어 답변. 금기어(몰라요/안됩니다/고객님책임/법대로) 금지. 정책 외 내용은 "담당자 확인 후 안내드리겠습니다" 답변.`,
         messages: [{
           role: 'user',
           content: `정책: ${trimmedContext}\n\n문의: ${query}`

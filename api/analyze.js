@@ -21,18 +21,11 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'prompt-caching-2024-07-31',
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 200,
-        system: [
-          {
-            type: 'text',
-            cache_control: { type: 'ephemeral' },
-            text: '검색품질 분석가. 쿼리와 청크를 보고 3줄로만 답변: 1)검색품질(상/중/하+이유) 2)핵심근거(인용) 3)개선쿼리 제안. 한국어.'
-          }
-        ],
+        system: '검색품질 분석가. 쿼리와 청크를 보고 3줄로만 답변: 1)검색품질(상/중/하+이유) 2)핵심근거(인용) 3)개선쿼리 제안. 한국어.',
         messages: [{
           role: 'user',
           content: `쿼리: "${query}"\n검색결과:\n${topChunks}`
