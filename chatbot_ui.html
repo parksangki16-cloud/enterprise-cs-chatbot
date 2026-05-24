@@ -9,33 +9,40 @@
 body{background:#f1f5f9;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 
 header{background:#1e293b;padding:14px 24px;display:flex;align-items:center;gap:12px;}
-header .logo{font-size:17px;font-weight:700;color:white;}
-header .sub{font-size:12px;color:#94a3b8;margin-left:4px;}
-.online{display:flex;align-items:center;gap:6px;font-size:12px;color:#22c55e;margin-left:auto;}
-.dot{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;}
+.logo{font-size:17px;font-weight:700;color:white;}
+.sub{font-size:12px;color:#94a3b8;margin-left:4px;}
+.online{display:flex;align-items:center;gap:6px;font-size:12px;margin-left:auto;}
+.online.on{color:#22c55e;} .online.off{color:#f87171;}
+.dot{width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite;}
+.on .dot{background:#22c55e;} .off .dot{background:#f87171;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.btn-engine{background:#6366f1;color:white;padding:6px 14px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;margin-left:12px;}
+.hbtn{background:none;border:1px solid #475569;color:#94a3b8;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;margin-left:8px;}
+.hbtn:hover{border-color:#94a3b8;color:white;}
+.hbtn.active{background:#6366f1;border-color:#6366f1;color:white;}
+a.hbtn{text-decoration:none;}
 
 .layout{display:flex;flex:1;overflow:hidden;}
 
-/* Chat */
 .chat-panel{flex:1;display:flex;flex-direction:column;}
 .notice-bar{background:#fef3c7;color:#92400e;font-size:12px;padding:8px 20px;border-bottom:1px solid #fde68a;}
 
 .messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;}
 
-.msg{display:flex;gap:10px;max-width:85%;animation:fadeIn .3s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg{display:flex;gap:10px;max-width:85%;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 .msg.user{align-self:flex-end;flex-direction:row-reverse;}
 .msg.bot{align-self:flex-start;}
+.msg.error-msg{align-self:flex-start;}
 
 .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .bot .avatar{background:#1e293b;color:white;}
 .user .avatar{background:#6366f1;color:white;}
+.error-msg .avatar{background:#fef2f2;border:1px solid #fca5a5;}
 
 .bubble{padding:13px 16px;border-radius:16px;font-size:14px;line-height:1.7;}
 .bot .bubble{background:white;border:1px solid #e2e8f0;border-radius:4px 16px 16px 16px;color:#1e293b;}
 .user .bubble{background:#6366f1;color:white;border-radius:16px 4px 16px 16px;}
+.error-msg .bubble{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:4px 16px 16px 16px;}
 
 .bubble .sources{margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0;}
 .source-tag{display:inline-block;background:#f1f5f9;color:#6366f1;font-size:11px;padding:2px 8px;border-radius:10px;margin:2px 3px 0 0;border:1px solid #e0e7ff;}
@@ -47,33 +54,54 @@ header .sub{font-size:12px;color:#94a3b8;margin-left:4px;}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-8px);}}
 
 .pipeline-strip{background:#f8fafc;border-top:1px solid #e2e8f0;padding:8px 20px;font-size:11px;color:#94a3b8;min-height:30px;}
-.step{display:inline-block;padding:2px 8px;border-radius:10px;margin-right:6px;margin-bottom:4px;}
+.step{display:inline-block;padding:2px 8px;border-radius:10px;margin-right:5px;margin-bottom:3px;}
 .step.done{background:#dcfce7;color:#166534;}
-.step.active{background:#dbeafe;color:#1d4ed8;animation:blink .8s infinite;}
+.step.active{background:#dbeafe;color:#1d4ed8;animation:blink .7s infinite;}
 .step.warn{background:#fef3c7;color:#92400e;}
-@keyframes blink{50%{opacity:.5;}}
+.step.err{background:#fef2f2;color:#991b1b;}
+@keyframes blink{50%{opacity:.4;}}
 
 .input-row{background:white;padding:14px 20px;border-top:1px solid #e2e8f0;display:flex;gap:10px;}
 .input-row input{flex:1;padding:12px 16px;border:1.5px solid #e2e8f0;border-radius:24px;font-size:14px;outline:none;transition:border-color .2s;}
 .input-row input:focus{border-color:#6366f1;}
-.send-btn{background:#6366f1;color:white;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.send-btn{background:#6366f1;color:white;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
 .send-btn:hover{background:#4f46e5;}
 .send-btn:disabled{background:#c7d2fe;cursor:not-allowed;}
 
-/* Right: RAG Context Panel */
-.context-panel{width:280px;background:white;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;}
+/* Context panel */
+.ctx-panel{width:280px;background:white;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;}
 .ctx-header{padding:14px 16px;font-size:12px;font-weight:700;color:#64748b;border-bottom:1px solid #e2e8f0;text-transform:uppercase;letter-spacing:.05em;}
 .ctx-body{flex:1;overflow-y:auto;padding:12px;}
-.ctx-empty{color:#cbd5e1;font-size:12px;text-align:center;padding:30px 0;}
+.ctx-empty{color:#cbd5e1;font-size:12px;text-align:center;padding:30px 10px;}
 .ctx-chunk{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #6366f1;}
 .ctx-rank{font-size:10px;color:#6366f1;font-weight:700;margin-bottom:3px;}
 .ctx-doc{font-size:10px;color:#94a3b8;margin-bottom:4px;}
 .ctx-text{font-size:11px;line-height:1.6;color:#374151;}
 .ctx-bar{background:#e2e8f0;border-radius:3px;height:3px;margin-top:5px;}
-.ctx-fill{height:3px;border-radius:3px;background:#6366f1;}
+.ctx-fill{height:3px;border-radius:3px;background:linear-gradient(90deg,#6366f1,#38bdf8);}
 .ctx-stats{border-top:1px solid #e2e8f0;padding:10px 16px;font-size:11px;color:#94a3b8;}
 .ctx-stats div{margin-bottom:4px;}
 .ctx-stats strong{color:#374151;}
+
+/* Settings modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:white;border-radius:16px;padding:28px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal h2{font-size:18px;margin-bottom:6px;color:#1e293b;}
+.modal p{font-size:13px;color:#64748b;margin-bottom:20px;line-height:1.6;}
+.modal label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
+.modal input[type=text],.modal input[type=password]{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;margin-bottom:16px;transition:border-color .2s;}
+.modal input:focus{border-color:#6366f1;}
+.modal-hint{font-size:11px;color:#94a3b8;margin-top:-12px;margin-bottom:16px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;}
+.btn-primary{background:#6366f1;color:white;}
+.btn-primary:hover{background:#4f46e5;}
+.btn-secondary{background:#f1f5f9;color:#374151;}
+.btn-secondary:hover{background:#e2e8f0;}
+.api-status{padding:6px 12px;border-radius:6px;font-size:12px;margin-bottom:16px;display:none;}
+.api-status.ok{background:#dcfce7;color:#166534;display:block;}
+.api-status.fail{background:#fef2f2;color:#991b1b;display:block;}
 </style>
 </head>
 <body>
@@ -82,91 +110,138 @@ header .sub{font-size:12px;color:#94a3b8;margin-left:4px;}
   <div style="background:#6366f1;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;">🤖</div>
   <div class="logo">CS AI 챗봇</div>
   <div class="sub">Enterprise RAG</div>
-  <div class="online"><div class="dot"></div>온라인</div>
-  <a href="rag_engine.html" class="btn-engine">RAG 엔진 →</a>
+  <div class="online off" id="onlineStatus" style="margin-left:auto;">
+    <div class="dot"></div><span id="onlineLabel">API 미설정</span>
+  </div>
+  <button class="hbtn" onclick="openSettings()">⚙ API 설정</button>
+  <a href="rag_engine.html" class="hbtn">RAG 엔진 →</a>
 </header>
 
 <div class="layout">
-
   <div class="chat-panel">
-    <div class="notice-bar">환불 분쟁·감정 격화·VIP 문의는 즉시 담당자로 연결됩니다 · AI 응답은 내부 정책 기반입니다</div>
-
+    <div class="notice-bar">환불 분쟁·감정 격화·VIP 문의는 즉시 담당자 연결 · Claude AI가 내부 정책 기반으로 응답합니다</div>
     <div class="messages" id="messages">
       <div class="msg bot">
         <div class="avatar">🤖</div>
         <div class="bubble">
           안녕하세요! <strong>CS AI 어시스턴트</strong>입니다.<br><br>
-          회사 내부 정책을 기반으로 정확하게 안내드립니다.<br>
-          환불, 배송, 결제, 회원 등 무엇이든 문의해 주세요.
+          내부 정책을 기반으로 정확하게 안내드립니다.<br>
+          우측 상단 <strong>⚙ API 설정</strong>에서 Anthropic API 키를 입력하면 Claude AI가 직접 답변합니다.
         </div>
       </div>
     </div>
-
     <div class="pipeline-strip" id="pipelineStrip">
       <span class="step done">대기 중</span>
     </div>
-
     <div class="input-row">
-      <input type="text" id="userInput" placeholder="문의 내용을 입력해주세요..." maxlength="200">
+      <input type="text" id="userInput" placeholder="문의 내용을 입력해주세요..." maxlength="300">
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
   </div>
 
-  <div class="context-panel">
+  <div class="ctx-panel">
     <div class="ctx-header">RAG 검색 컨텍스트</div>
     <div class="ctx-body" id="ctxBody">
-      <div class="ctx-empty">메시지를 보내면<br>검색된 청크가<br>여기에 표시됩니다.</div>
+      <div class="ctx-empty">메시지를 보내면<br>검색된 청크와<br>유사도가 표시됩니다.</div>
     </div>
     <div class="ctx-stats" id="ctxStats">
-      <div>총 문서: <strong id="statDocs">—</strong></div>
-      <div>총 청크: <strong id="statChunks">—</strong></div>
-      <div>마지막 검색: <strong id="statQuery">—</strong></div>
+      <div>문서: <strong id="statDocs">—</strong></div>
+      <div>청크: <strong id="statChunks">—</strong></div>
+      <div>최고 유사도: <strong id="statTop">—</strong></div>
     </div>
   </div>
+</div>
 
+<!-- Settings Modal -->
+<div class="modal-bg" id="settingsModal" onclick="e=>e.target===this&&closeSettings()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>⚙ API 설정</h2>
+    <p>Anthropic API 키를 입력하면 Claude AI가 직접 답변을 생성합니다.<br>키는 브라우저 localStorage에만 저장되며 서버에 보관되지 않습니다.</p>
+    <div class="api-status" id="apiStatus"></div>
+    <label>Anthropic API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+    <div class="modal-hint">🔗 발급: console.anthropic.com → API Keys</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="testApi()">연결 테스트</button>
+      <button class="btn btn-secondary" onclick="closeSettings()">취소</button>
+      <button class="btn btn-primary" onclick="saveSettings()">저장</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const EMOTIONAL = ['화나','짜증','열받','고소','빡','어이없','황당','말이되','해결 안','답답'];
-const FORBIDDEN = ['몰라요','안 됩니다','고객님 책임','환불 절대 불가','법대로'];
-
+const EMOTIONAL = ['화나','짜증','열받','고소','빡','어이없','황당','답답','화가','불만','최악','쓰레기'];
 let kb = [];
 let isBusy = false;
 
+function getApiKey(){ return localStorage.getItem('anthropic_api_key') || ''; }
+
+function updateOnlineStatus(){
+  const key = getApiKey();
+  const el = document.getElementById('onlineStatus');
+  const lbl = document.getElementById('onlineLabel');
+  if(key){ el.className='online on'; lbl.textContent='Claude 연결됨'; }
+  else { el.className='online off'; lbl.textContent='API 미설정'; }
+}
+
+function openSettings(){
+  document.getElementById('apiKeyInput').value = getApiKey();
+  document.getElementById('apiStatus').className='api-status';
+  document.getElementById('settingsModal').classList.add('open');
+}
+function closeSettings(){ document.getElementById('settingsModal').classList.remove('open'); }
+
+function saveSettings(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(key) localStorage.setItem('anthropic_api_key', key);
+  else localStorage.removeItem('anthropic_api_key');
+  updateOnlineStatus();
+  closeSettings();
+}
+
+async function testApi(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(!key){ showApiStatus('API 키를 입력해주세요.', false); return; }
+  showApiStatus('연결 테스트 중...', null);
+  try{
+    const r = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({query:'안녕', context:'테스트', apiKey: key})
+    });
+    const d = await r.json();
+    if(r.ok) showApiStatus('✅ 연결 성공!', true);
+    else showApiStatus('❌ ' + (d.error||'오류'), false);
+  }catch(e){ showApiStatus('❌ 네트워크 오류: '+e.message, false); }
+}
+
+function showApiStatus(msg, ok){
+  const el = document.getElementById('apiStatus');
+  el.textContent = msg;
+  el.className = ok===true ? 'api-status ok' : ok===false ? 'api-status fail' : 'api-status ok';
+}
+
 function loadKB(){
   const saved = localStorage.getItem('rag_kb');
-  kb = saved ? JSON.parse(saved) : [];
-  if(!kb.length){
-    kb = [
-      {id:'doc1',name:'환불·반품 정책',content:`전자상거래법에 따라 상품 수령 후 7일 이내 단순 변심 환불이 가능합니다. 단, 사용 흔적이 있거나 포장 훼손 시에는 환불이 제한될 수 있습니다. 주문 취소는 발송 전까지 가능하며 발송 후에는 반품 절차를 따릅니다. 환불 처리 기간은 반품 확인 후 영업일 기준 3~5일 소요됩니다. 디지털 콘텐츠는 다운로드 이후 환불이 불가합니다. 불량품은 수령 후 30일 이내 교환 또는 환불 가능합니다.`},
-      {id:'doc2',name:'배송 정책',content:`일반 배송은 주문 확인 후 평균 1~3 영업일 소요됩니다. 당일 배송은 오전 10시 이전 주문 건에 한해 수도권 지역에서 가능합니다. 배송비는 3만 원 이상 구매 시 무료이며 미만 시 3,000원이 부과됩니다. 제주 및 도서산간 지역은 추가 배송비 3,000원이 부과됩니다. 송장번호는 발송 완료 후 문자 및 앱 푸시로 안내됩니다. 분실 또는 파손 시 택배사와 협의 후 처리합니다.`},
-      {id:'doc3',name:'회원 등급 정책',content:`회원 등급은 일반, 실버, 골드, VIP 4단계로 구분됩니다. 실버는 연간 구매액 30만 원 이상, 골드는 100만 원 이상, VIP는 300만 원 이상입니다. VIP 회원은 전담 상담사가 배정되며 우선 처리가 적용됩니다. 등급 산정 기준은 매년 1월 1일 갱신됩니다. 포인트는 구매금액의 1~5%가 적립되며 등급에 따라 배율이 다릅니다.`},
-      {id:'doc4',name:'결제 정책',content:`신용카드, 체크카드, 계좌이체, 가상계좌, 카카오페이, 네이버페이, 토스를 지원합니다. 할부는 5만 원 이상 결제 시 최대 12개월까지 가능합니다. 무이자 할부는 카드사별 행사에 따라 제공됩니다. 결제 오류 발생 시 고객센터 또는 결제 취소 후 재시도를 권장합니다. 이중 결제 확인 시 즉시 환불 처리됩니다.`},
-      {id:'doc5',name:'A/S 및 품질보증',content:`제품 구매 후 1년간 무상 A/S를 제공합니다. 소비자 과실로 인한 파손은 유상 수리 대상입니다. A/S 접수는 고객센터 전화, 앱, 이메일을 통해 가능합니다. 수리 기간은 접수 후 평균 5~7 영업일 소요됩니다. 부품 수급이 어려운 경우 동급 제품으로 교환합니다. 방문 수리 서비스는 수도권 한정으로 운영됩니다.`},
-      {id:'doc6',name:'개인정보 처리방침',content:`수집 항목은 이름, 이메일, 전화번호, 배송지 주소입니다. 수집 목적은 주문 처리, 배송, 고객 서비스, 마케팅(동의 시)입니다. 보유 기간은 회원 탈퇴 후 3년입니다. 제3자 제공은 배송사, 결제사에 한하며 최소 항목만 제공됩니다. 개인정보 열람, 정정, 삭제 요청은 고객센터를 통해 가능합니다.`},
-      {id:'doc7',name:'고객센터 운영 안내',content:`고객센터는 평일 오전 9시부터 오후 6시까지 운영됩니다. 주말 및 공휴일은 AI 챗봇이 24시간 응대합니다. 복잡한 문의나 감정 격화 시 즉시 담당 상담사로 연결됩니다. 평균 대기 시간은 평일 기준 3분 이내입니다. VIP 고객은 전용 직통 번호를 이용하실 수 있습니다.`},
-    ];
-  }
-  updateCtxStats();
+  kb = saved ? JSON.parse(saved) : getDefaultKB();
+  const totalChunks = kb.reduce((s,d)=>s+getChunks(d.content).length,0);
+  document.getElementById('statDocs').textContent = kb.length;
+  document.getElementById('statChunks').textContent = totalChunks;
 }
 
-function tokenize(text){
-  const tokens={};
-  text.replace(/[^\w가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1).forEach(w=>{tokens[w]=(tokens[w]||0)+1;});
-  return tokens;
-}
-
-function cosineSim(a,b){
-  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
-  let dot=0,magA=0,magB=0;
-  keys.forEach(k=>{const va=a[k]||0,vb=b[k]||0;dot+=va*vb;magA+=va*va;magB+=vb*vb;});
-  if(!magA||!magB) return 0;
-  return dot/Math.sqrt(magA*magB);
+function getDefaultKB(){
+  return [
+    {id:'doc1',name:'환불·반품 정책',content:`전자상거래법에 따라 상품 수령 후 7일 이내 단순 변심 환불이 가능합니다. 단, 사용 흔적이 있거나 포장 훼손 시에는 환불이 제한될 수 있습니다. 주문 취소는 발송 전까지 가능하며 발송 후에는 반품 절차를 따릅니다. 환불 처리 기간은 반품 확인 후 영업일 기준 3~5일 소요됩니다. 디지털 콘텐츠는 다운로드 이후 환불이 불가합니다. 불량품은 수령 후 30일 이내 교환 또는 환불 가능합니다.`},
+    {id:'doc2',name:'배송 정책',content:`일반 배송은 주문 확인 후 평균 1~3 영업일 소요됩니다. 당일 배송은 오전 10시 이전 주문 건에 한해 수도권 지역에서 가능합니다. 배송비는 3만 원 이상 구매 시 무료이며 미만 시 3,000원이 부과됩니다. 제주 및 도서산간 지역은 추가 배송비 3,000원이 부과됩니다. 송장번호는 발송 완료 후 문자 및 앱 푸시로 안내됩니다. 분실 또는 파손 시 택배사와 협의 후 처리합니다.`},
+    {id:'doc3',name:'회원 등급 정책',content:`회원 등급은 일반, 실버, 골드, VIP 4단계로 구분됩니다. 실버는 연간 구매액 30만 원 이상, 골드는 100만 원 이상, VIP는 300만 원 이상입니다. VIP 회원은 전담 상담사가 배정되며 우선 처리가 적용됩니다. 등급 산정 기준은 매년 1월 1일 갱신됩니다. 포인트는 구매금액의 1~5%가 적립되며 등급에 따라 배율이 다릅니다.`},
+    {id:'doc4',name:'결제 정책',content:`신용카드, 체크카드, 계좌이체, 가상계좌, 카카오페이, 네이버페이, 토스를 지원합니다. 할부는 5만 원 이상 결제 시 최대 12개월까지 가능합니다. 무이자 할부는 카드사별 행사에 따라 제공됩니다. 결제 오류 발생 시 고객센터 또는 결제 취소 후 재시도를 권장합니다. 이중 결제 확인 시 즉시 환불 처리됩니다.`},
+    {id:'doc5',name:'A/S 및 품질보증',content:`제품 구매 후 1년간 무상 A/S를 제공합니다. 소비자 과실로 인한 파손은 유상 수리 대상입니다. A/S 접수는 고객센터 전화, 앱, 이메일을 통해 가능합니다. 수리 기간은 접수 후 평균 5~7 영업일 소요됩니다. 부품 수급이 어려운 경우 동급 제품으로 교환합니다.`},
+    {id:'doc6',name:'고객센터 운영',content:`고객센터는 평일 오전 9시부터 오후 6시까지 운영됩니다. 주말 및 공휴일은 AI 챗봇이 24시간 응대합니다. 복잡한 문의나 감정 격화 시 즉시 담당 상담사로 연결됩니다. 평균 대기 시간은 평일 기준 3분 이내입니다. VIP 고객은 전용 직통 번호를 이용하실 수 있습니다.`},
+  ];
 }
 
 function getChunks(text){
-  const chunks=[];
-  const size=120, step=100;
+  const chunks=[], size=120, step=100;
   for(let i=0;i<text.length;i+=step){
     const c=text.slice(i,i+size);
     if(c.trim()) chunks.push(c);
@@ -175,12 +250,25 @@ function getChunks(text){
   return chunks;
 }
 
+function tokenize(text){
+  const t={};
+  text.replace(/[^\w가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1).forEach(w=>{t[w]=(t[w]||0)+1;});
+  return t;
+}
+
+function cosineSim(a,b){
+  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  let dot=0,mA=0,mB=0;
+  keys.forEach(k=>{const va=a[k]||0,vb=b[k]||0;dot+=va*vb;mA+=va*va;mB+=vb*vb;});
+  return(!mA||!mB)?0:dot/Math.sqrt(mA*mB);
+}
+
 function ragRetrieve(query){
-  const qTokens=tokenize(query);
+  const qt=tokenize(query);
   const results=[];
   kb.forEach(doc=>{
     getChunks(doc.content).forEach((chunk,i)=>{
-      const score=cosineSim(qTokens,tokenize(chunk));
+      const score=cosineSim(qt,tokenize(chunk));
       if(score>0) results.push({doc:doc.name,text:chunk,score,idx:i});
     });
   });
@@ -188,177 +276,148 @@ function ragRetrieve(query){
   return results.slice(0,3);
 }
 
-function generateAnswer(query, chunks){
-  const isEmotional = EMOTIONAL.some(k=>query.includes(k));
-  if(isEmotional){
-    return {
-      text:`많이 불편하셨겠습니다. 진심으로 사과드립니다.<br><br>담당 상담사가 즉시 연결될 수 있도록 처리하겠습니다. 잠시만 기다려 주시면 빠르게 해결해 드리겠습니다.`,
-      sources:[], escalate:true
-    };
-  }
-
-  if(!chunks.length){
-    return {
-      text:`문의하신 내용을 정확히 파악하지 못했습니다.<br><br>보다 구체적으로 말씀해 주시면 정확한 정책 정보를 안내드릴 수 있습니다. 또는 고객센터(평일 9~18시)로 연결해 드릴까요?`,
-      sources:[], escalate:false
-    };
-  }
-
-  const context = chunks.map(c=>c.text).join(' ');
-  let answer = '';
-
-  if(query.includes('환불')||query.includes('반품')){
-    if(context.includes('7일')) answer = `전자상거래법 기준으로 상품 수령 후 <strong>7일 이내</strong> 단순 변심 환불이 가능합니다.<br><br>단, 사용 흔적이나 포장 훼손 시 제한될 수 있으며 디지털 콘텐츠는 다운로드 이후 환불이 불가합니다.<br>환불 처리는 반품 확인 후 <strong>영업일 기준 3~5일</strong> 소요됩니다.`;
-    else answer = `환불 관련 문의입니다. 구체적인 상황(주문번호, 수령일 등)을 알려주시면 더 정확한 안내가 가능합니다.`;
-  } else if(query.includes('배송')){
-    answer = `일반 배송은 주문 확인 후 평균 <strong>1~3 영업일</strong> 소요됩니다.<br><br>3만 원 이상 구매 시 배송비 무료이며, 제주·도서산간은 추가 3,000원이 부과됩니다.<br>송장번호는 발송 후 문자/앱으로 안내됩니다.`;
-  } else if(query.includes('결제')||query.includes('할부')||query.includes('카드')){
-    answer = `카드, 계좌이체, 카카오페이, 네이버페이, 토스 등을 지원합니다.<br><br><strong>5만 원 이상</strong> 결제 시 최대 12개월 할부 가능하며, 카드사별 무이자 행사가 적용될 수 있습니다.`;
-  } else if(query.includes('회원')||query.includes('등급')||query.includes('VIP')||query.includes('포인트')){
-    answer = `회원 등급은 <strong>일반 → 실버 → 골드 → VIP</strong> 4단계입니다.<br><br>VIP는 연간 구매액 300만 원 이상이며 전담 상담사가 배정됩니다. 포인트는 구매금액의 1~5% 적립됩니다.`;
-  } else if(query.includes('A/S')||query.includes('수리')||query.includes('고장')){
-    answer = `구매 후 <strong>1년간 무상 A/S</strong>를 제공합니다.<br><br>소비자 과실 파손은 유상 수리이며, 수리 기간은 평균 5~7 영업일 소요됩니다. 부품 수급 불가 시 동급 제품으로 교환합니다.`;
-  } else if(query.includes('개인정보')||query.includes('정보')){
-    answer = `수집 항목은 이름, 이메일, 전화번호, 배송지입니다.<br><br>회원 탈퇴 후 3년간 보유하며, 배송사·결제사 외 제3자 제공은 없습니다. 열람·삭제 요청은 고객센터를 통해 가능합니다.`;
-  } else {
-    const firstChunk = chunks[0].text;
-    answer = `내부 정책 기반으로 안내드립니다.<br><br>${firstChunk}<br><br>추가로 궁금하신 사항이 있으면 말씀해 주세요.`;
-  }
-
-  return {
-    text: answer,
-    sources: [...new Set(chunks.map(c=>c.doc))],
-    escalate: false
-  };
-}
-
 async function sendMessage(){
   if(isBusy) return;
-  const input = document.getElementById('userInput');
-  const query = input.value.trim();
+  const input=document.getElementById('userInput');
+  const query=input.value.trim();
   if(!query) return;
-
   input.value='';
   isBusy=true;
   document.getElementById('sendBtn').disabled=true;
 
-  appendMsg(query, 'user');
+  appendUserMsg(query);
   loadKB();
 
-  // Pipeline animation
-  await pipeline([
-    {label:'감정 탐지', delay:150},
-    {label:'금기어 검사', delay:150},
-    {label:'RAG 검색', delay:300},
-    {label:'컨텍스트 구성', delay:150},
-    {label:'응답 생성', delay:300},
-    {label:'환각 검증', delay:150},
+  const isEmotional=EMOTIONAL.some(k=>query.includes(k));
+
+  await runPipeline([
+    {label:'감정 탐지', delay:120, warn:isEmotional},
+    {label:'금기어 검사', delay:100},
+    {label:'RAG 검색', delay:250},
+    {label:'컨텍스트 구성', delay:100},
+    {label:'Claude 생성', delay:200},
+    {label:'환각 검증', delay:120},
     {label:'컴플라이언스', delay:100},
   ]);
 
-  const chunks = ragRetrieve(query);
-  showContext(query, chunks);
+  if(isEmotional){
+    removeTyping();
+    appendBotMsg('많이 불편하셨겠습니다. 진심으로 사과드립니다.<br><br>담당 상담사가 즉시 연결될 수 있도록 처리하겠습니다. 잠시만 기다려 주세요.', [], true);
+    resetPipeline('담당자 연결 중');
+    isBusy=false;
+    document.getElementById('sendBtn').disabled=false;
+    return;
+  }
 
-  const {text, sources, escalate} = generateAnswer(query, chunks);
+  const chunks=ragRetrieve(query);
+  showCtx(chunks);
 
-  removeTyping();
-  appendBotMsg(text, sources, escalate);
-  resetPipeline();
+  const apiKey=getApiKey();
+  const context=chunks.length ? chunks.map(c=>`[${c.doc}] ${c.text}`).join('\n') : '관련 정책 없음';
+
+  try{
+    const r=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({query, context, apiKey})
+    });
+    const data=await r.json();
+    removeTyping();
+    if(!r.ok) throw new Error(data.error||`오류 ${r.status}`);
+    const sources=[...new Set(chunks.map(c=>c.doc))];
+    appendBotMsg(escHtml(data.answer).replace(/\n/g,'<br>'), sources, false);
+    resetPipeline('완료');
+  }catch(err){
+    removeTyping();
+    appendErrMsg(err.message);
+    resetPipeline('오류', true);
+  }
 
   isBusy=false;
   document.getElementById('sendBtn').disabled=false;
-  input.focus();
+  document.getElementById('userInput').focus();
 }
 
-async function pipeline(steps){
-  const strip = document.getElementById('pipelineStrip');
+async function runPipeline(steps){
+  const strip=document.getElementById('pipelineStrip');
+  strip.innerHTML='';
   appendTyping();
-  for(let i=0;i<steps.length;i++){
-    const s=steps[i];
-    const active = strip.querySelectorAll('.step.active');
-    active.forEach(e=>{e.classList.remove('active');e.classList.add('done');});
-    const span=document.createElement('span');
-    span.className='step active';
-    span.textContent=s.label+'...';
-    strip.appendChild(span);
+  for(const s of steps){
+    const sp=document.createElement('span');
+    sp.className='step active'+(s.warn?' warn':'');
+    sp.textContent=s.label+'...';
+    strip.appendChild(sp);
     await sleep(s.delay);
+    sp.className='step done';
   }
 }
 
-function resetPipeline(){
-  const strip=document.getElementById('pipelineStrip');
-  strip.innerHTML='<span class="step done">완료</span>';
+function resetPipeline(label='완료', err=false){
+  document.getElementById('pipelineStrip').innerHTML=`<span class="step ${err?'err':'done'}">${label}</span>`;
 }
 
 function appendTyping(){
   const msgs=document.getElementById('messages');
   const d=document.createElement('div');
-  d.className='msg bot';d.id='typing';
+  d.className='msg bot';d.id='typing-indicator';
   d.innerHTML='<div class="avatar">🤖</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
   msgs.appendChild(d);
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-function removeTyping(){
-  const t=document.getElementById('typing');
-  if(t) t.remove();
+function removeTyping(){ document.getElementById('typing-indicator')?.remove(); }
+
+function appendUserMsg(text){
+  addMsg('user','👤',escHtml(text));
 }
 
-function appendMsg(text, sender){
+function appendBotMsg(html, sources, escalate){
+  let extra='';
+  if(escalate) extra='<div class="sources" style="color:#ef4444;margin-top:8px;padding-top:8px;border-top:1px solid #fca5a5;">⚠️ 담당자 연결 중...</div>';
+  else if(sources.length) extra=`<div class="sources">📎 출처: ${sources.map(s=>`<span class="source-tag">${s}</span>`).join('')}</div>`;
+  addMsg('bot','🤖',html+extra);
+}
+
+function appendErrMsg(msg){
+  addMsg('error-msg','⚠️',`<strong>오류:</strong> ${escHtml(msg)}<br><small style="opacity:.7">API 키를 확인하거나 잠시 후 다시 시도해주세요.</small>`);
+}
+
+function addMsg(cls, icon, html){
   const msgs=document.getElementById('messages');
   const d=document.createElement('div');
-  d.className=`msg ${sender}`;
-  const avatar=sender==='user'?'👤':'🤖';
-  d.innerHTML=`<div class="avatar">${avatar}</div><div class="bubble">${escHtml(text)}</div>`;
+  d.className=`msg ${cls}`;
+  d.innerHTML=`<div class="avatar">${icon}</div><div class="bubble">${html}</div>`;
   msgs.appendChild(d);
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-function appendBotMsg(text, sources, escalate){
-  const msgs=document.getElementById('messages');
-  const d=document.createElement('div');
-  d.className='msg bot';
-  let srcHtml='';
-  if(sources && sources.length){
-    srcHtml=`<div class="sources">📎 출처: ${sources.map(s=>`<span class="source-tag">${s}</span>`).join('')}</div>`;
-  }
-  if(escalate){
-    srcHtml=`<div class="sources" style="color:#ef4444;">⚠️ 담당자 연결 중...</div>`;
-  }
-  d.innerHTML=`<div class="avatar">🤖</div><div class="bubble">${text}${srcHtml}</div>`;
-  msgs.appendChild(d);
-  msgs.scrollTop=msgs.scrollHeight;
-}
-
-function showContext(query, chunks){
+function showCtx(chunks){
   const body=document.getElementById('ctxBody');
-  document.getElementById('statQuery').textContent=query.slice(0,12)+(query.length>12?'…':'');
-  if(!chunks.length){
-    body.innerHTML='<div class="ctx-empty">관련 청크 없음</div>';
-    return;
-  }
+  document.getElementById('statTop').textContent=chunks[0]?(chunks[0].score*100).toFixed(1)+'%':'0%';
+  if(!chunks.length){ body.innerHTML='<div class="ctx-empty">관련 청크 없음</div>'; return; }
   body.innerHTML=chunks.map((c,i)=>`
     <div class="ctx-chunk">
       <div class="ctx-rank">#${i+1} · ${(c.score*100).toFixed(1)}%</div>
       <div class="ctx-doc">${c.doc}</div>
       <div class="ctx-text">${escHtml(c.text)}</div>
-      <div class="ctx-bar"><div class="ctx-fill" style="width:${Math.min(100,(c.score*100).toFixed(0))}%"></div></div>
-    </div>
-  `).join('');
+      <div class="ctx-bar"><div class="ctx-fill" style="width:${Math.min(100,c.score*100).toFixed(0)}%"></div></div>
+    </div>`).join('');
 }
 
-function updateCtxStats(){
-  const totalChunks=kb.reduce((s,d)=>s+getChunks(d.content).length,0);
-  document.getElementById('statDocs').textContent=kb.length;
-  document.getElementById('statChunks').textContent=totalChunks;
-}
+function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+document.getElementById('userInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
 
-document.getElementById('userInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+// Close modal on bg click
+document.getElementById('settingsModal').addEventListener('click',function(e){
+  if(e.target===this) closeSettings();
+});
 
 loadKB();
+updateOnlineStatus();
 </script>
 </body>
 </html>
