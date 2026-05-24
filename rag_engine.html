@@ -365,7 +365,15 @@ function delDoc(id){
 
 function tokenize(text){
   const t={};
-  text.replace(/[^\w가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1).forEach(w=>{t[w]=(t[w]||0)+1;});
+  // 단어 토큰 (가중치 2)
+  text.replace(/[^\w가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1)
+      .forEach(w=>{ t[w]=(t[w]||0)+2; });
+  // 한국어 음절 바이그램 (가중치 1) — "할부결제"→["할부","부결","결제"] 로 띄어쓰기 차이 극복
+  const ko=text.replace(/[^\가-힣]/g,'');
+  for(let i=0;i<ko.length-1;i++){
+    const bg=ko.slice(i,i+2);
+    t[bg]=(t[bg]||0)+1;
+  }
   return t;
 }
 function cosineSim(a,b){
