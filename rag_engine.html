@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Engine — Enterprise CS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Malgun Gothic',sans-serif;}
+body{background:#0f172a;color:#e2e8f0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+header{background:#1e293b;padding:16px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #334155;}
+header h1{font-size:18px;color:#38bdf8;}
+.badge{background:#0ea5e9;color:white;font-size:11px;padding:3px 10px;border-radius:20px;}
+.status-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* Left: KB Manager */
+.panel-kb{width:300px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;}
+.panel-title{padding:14px 18px;font-size:13px;font-weight:700;color:#94a3b8;border-bottom:1px solid #334155;letter-spacing:.05em;text-transform:uppercase;}
+.doc-list{flex:1;overflow-y:auto;padding:10px;}
+.doc-item{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
+.doc-item:hover{border-color:#38bdf8;}
+.doc-item.active{border-color:#38bdf8;background:#1e3a52;}
+.doc-name{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px;}
+.doc-meta{font-size:11px;color:#64748b;}
+.doc-meta span{color:#38bdf8;}
+.add-doc{padding:12px;border-top:1px solid #334155;}
+.add-doc input{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:6px;}
+.add-doc textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:8px 12px;border-radius:6px;font-size:12px;resize:none;height:70px;}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;}
+.btn-primary{background:#0ea5e9;color:white;width:100%;margin-top:6px;}
+.btn-primary:hover{background:#0284c7;}
+.btn-danger{background:#ef4444;color:white;font-size:11px;padding:3px 8px;float:right;}
+
+/* Center: Chunk View */
+.panel-chunks{flex:1;display:flex;flex-direction:column;border-right:1px solid #334155;}
+.chunk-area{flex:1;overflow-y:auto;padding:16px;}
+.chunk-card{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;margin-bottom:10px;position:relative;}
+.chunk-id{font-size:10px;color:#64748b;margin-bottom:6px;font-family:monospace;}
+.chunk-text{font-size:13px;line-height:1.7;color:#cbd5e1;}
+.chunk-score{position:absolute;top:10px;right:10px;font-size:11px;background:#1e3a52;color:#38bdf8;padding:2px 8px;border-radius:10px;}
+.chunk-highlight{background:#1e293b;border-color:#38bdf8;}
+.chunk-highlight .chunk-text em{background:#1e3a52;color:#7dd3fc;font-style:normal;padding:0 2px;border-radius:2px;}
+.config-bar{background:#1e293b;border-top:1px solid #334155;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.config-item{display:flex;align-items:center;gap:8px;font-size:12px;}
+.config-item label{color:#94a3b8;}
+.config-item input[type=range]{width:80px;accent-color:#0ea5e9;}
+.config-item span{color:#38bdf8;font-weight:700;width:30px;}
+.chunk-count{font-size:12px;color:#64748b;padding:4px 16px;}
+
+/* Right: Query Panel */
+.panel-query{width:320px;background:#1e293b;display:flex;flex-direction:column;}
+.query-box{padding:14px;}
+.query-box textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px;border-radius:6px;font-size:13px;resize:none;height:80px;margin-bottom:8px;}
+.btn-search{background:#6366f1;color:white;width:100%;padding:10px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-search:hover{background:#4f46e5;}
+.result-area{flex:1;overflow-y:auto;padding:0 14px 14px;}
+.result-card{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #6366f1;}
+.result-rank{font-size:11px;color:#6366f1;font-weight:700;margin-bottom:4px;}
+.result-doc{font-size:10px;color:#64748b;margin-bottom:4px;}
+.result-text{font-size:12px;line-height:1.6;color:#94a3b8;}
+.result-score-bar{margin-top:6px;background:#1e293b;border-radius:3px;height:4px;}
+.result-score-fill{height:4px;border-radius:3px;background:linear-gradient(90deg,#6366f1,#38bdf8);}
+.pipeline-log{background:#0f172a;border-top:1px solid #334155;padding:10px 14px;max-height:160px;overflow-y:auto;}
+.log-line{font-size:11px;font-family:monospace;color:#64748b;margin-bottom:3px;}
+.log-line.ok{color:#22c55e;}
+.log-line.info{color:#38bdf8;}
+.log-line.warn{color:#f59e0b;}
+
+/* Stats bar */
+.stats-bar{background:#1e293b;border-top:1px solid #334155;padding:8px 20px;display:flex;gap:24px;font-size:12px;color:#64748b;}
+.stat{display:flex;gap:6px;}
+.stat strong{color:#38bdf8;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="status-dot"></div>
+  <h1>RAG Engine</h1>
+  <div class="badge">Enterprise CS v1.0</div>
+  <div style="margin-left:auto;font-size:12px;color:#64748b;">Knowledge Base Management · Chunking · Vector Retrieval</div>
+  <a href="chatbot_ui.html" style="margin-left:16px;background:#6366f1;color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">챗봇 화면 →</a>
+</header>
+
+<div class="layout">
+
+  <!-- Left: Knowledge Base -->
+  <div class="panel-kb">
+    <div class="panel-title">Knowledge Base</div>
+    <div class="doc-list" id="docList"></div>
+    <div class="add-doc">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">문서 추가</div>
+      <input type="text" id="newDocName" placeholder="문서 제목">
+      <textarea id="newDocContent" placeholder="문서 내용을 입력하세요..."></textarea>
+      <button class="btn btn-primary" onclick="addDocument()">+ 문서 추가</button>
+    </div>
+  </div>
+
+  <!-- Center: Chunks -->
+  <div class="panel-chunks">
+    <div class="panel-title" id="chunkTitle">청크 뷰어 — 문서를 선택하세요</div>
+    <div class="chunk-count" id="chunkCount"></div>
+    <div class="chunk-area" id="chunkArea">
+      <div style="color:#334155;font-size:13px;padding:20px;text-align:center;">좌측에서 문서를 선택하면<br>청크 분할 결과를 확인할 수 있습니다.</div>
+    </div>
+    <div class="config-bar">
+      <div class="config-item">
+        <label>청크 크기</label>
+        <input type="range" id="chunkSize" min="50" max="300" value="120" oninput="updateChunkConfig()">
+        <span id="chunkSizeVal">120</span>
+      </div>
+      <div class="config-item">
+        <label>오버랩</label>
+        <input type="range" id="chunkOverlap" min="0" max="60" value="20" oninput="updateChunkConfig()">
+        <span id="chunkOverlapVal">20</span>
+      </div>
+      <div class="config-item">
+        <label>구분자</label>
+        <select id="splitBy" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:4px 8px;border-radius:4px;font-size:12px;" onchange="updateChunkConfig()">
+          <option value="sentence">문장</option>
+          <option value="char">글자수</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Query + Results -->
+  <div class="panel-query">
+    <div class="panel-title">벡터 검색 테스트</div>
+    <div class="query-box">
+      <textarea id="queryInput" placeholder="검색 쿼리를 입력하세요&#10;예: 환불 규정이 어떻게 되나요?"></textarea>
+      <button class="btn-search" onclick="runSearch()">검색 실행</button>
+    </div>
+    <div class="result-area" id="resultArea">
+      <div style="color:#334155;font-size:12px;text-align:center;padding:20px;">쿼리를 입력하고 검색을 실행하면<br>관련 청크가 랭킹 순으로 표시됩니다.</div>
+    </div>
+    <div class="pipeline-log" id="pipelineLog">
+      <div class="log-line info">[RAG Engine] 초기화 완료</div>
+      <div class="log-line ok">[KB] 문서 로드 완료</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat">문서 <strong id="statDocs">0</strong></div>
+  <div class="stat">전체 청크 <strong id="statChunks">0</strong></div>
+  <div class="stat">마지막 검색 <strong id="statLastQuery">—</strong></div>
+  <div class="stat">최고 유사도 <strong id="statTopScore">—</strong></div>
+  <div class="stat" style="margin-left:auto;">저장소: <strong>localStorage</strong></div>
+</div>
+
+<script>
+const DEFAULT_DOCS = [
+  {id:'doc1', name:'환불·반품 정책', content:`전자상거래법에 따라 상품 수령 후 7일 이내 단순 변심 환불이 가능합니다. 단, 사용 흔적이 있거나 포장 훼손 시에는 환불이 제한될 수 있습니다. 주문 취소는 발송 전까지 가능하며 발송 후에는 반품 절차를 따릅니다. 환불 처리 기간은 반품 확인 후 영업일 기준 3~5일 소요됩니다. 디지털 콘텐츠는 다운로드 이후 환불이 불가합니다. 불량품은 수령 후 30일 이내 교환 또는 환불 가능합니다.`},
+  {id:'doc2', name:'배송 정책', content:`일반 배송은 주문 확인 후 평균 1~3 영업일 소요됩니다. 당일 배송은 오전 10시 이전 주문 건에 한해 수도권 지역에서 가능합니다. 배송비는 3만 원 이상 구매 시 무료이며 미만 시 3,000원이 부과됩니다. 제주 및 도서산간 지역은 추가 배송비 3,000원이 부과됩니다. 송장번호는 발송 완료 후 문자 및 앱 푸시로 안내됩니다. 분실 또는 파손 시 택배사와 협의 후 처리합니다.`},
+  {id:'doc3', name:'회원 등급 정책', content:`회원 등급은 일반, 실버, 골드, VIP 4단계로 구분됩니다. 실버는 연간 구매액 30만 원 이상, 골드는 100만 원 이상, VIP는 300만 원 이상입니다. VIP 회원은 전담 상담사가 배정되며 우선 처리가 적용됩니다. 등급 산정 기준은 매년 1월 1일 갱신됩니다. 포인트는 구매금액의 1~5%가 적립되며 등급에 따라 배율이 다릅니다.`},
+  {id:'doc4', name:'결제 정책', content:`신용카드, 체크카드, 계좌이체, 가상계좌, 카카오페이, 네이버페이, 토스를 지원합니다. 할부는 5만 원 이상 결제 시 최대 12개월까지 가능합니다. 무이자 할부는 카드사별 행사에 따라 제공됩니다. 결제 오류 발생 시 고객센터 또는 결제 취소 후 재시도를 권장합니다. 이중 결제 확인 시 즉시 환불 처리됩니다.`},
+  {id:'doc5', name:'A/S 및 품질보증', content:`제품 구매 후 1년간 무상 A/S를 제공합니다. 소비자 과실로 인한 파손은 유상 수리 대상입니다. A/S 접수는 고객센터 전화, 앱, 이메일을 통해 가능합니다. 수리 기간은 접수 후 평균 5~7 영업일 소요됩니다. 부품 수급이 어려운 경우 동급 제품으로 교환합니다. 방문 수리 서비스는 수도권 한정으로 운영됩니다.`},
+  {id:'doc6', name:'개인정보 처리방침', content:`수집 항목은 이름, 이메일, 전화번호, 배송지 주소입니다. 수집 목적은 주문 처리, 배송, 고객 서비스, 마케팅(동의 시)입니다. 보유 기간은 회원 탈퇴 후 3년입니다. 제3자 제공은 배송사, 결제사에 한하며 최소 항목만 제공됩니다. 개인정보 열람, 정정, 삭제 요청은 고객센터를 통해 가능합니다.`},
+  {id:'doc7', name:'고객센터 운영 안내', content:`고객센터는 평일 오전 9시부터 오후 6시까지 운영됩니다. 주말 및 공휴일은 AI 챗봇이 24시간 응대합니다. 복잡한 문의나 감정 격화 시 즉시 담당 상담사로 연결됩니다. 평균 대기 시간은 평일 기준 3분 이내입니다. VIP 고객은 전용 직통 번호를 이용하실 수 있습니다.`},
+];
+
+let docs = [];
+let selectedDocId = null;
+let chunkSize = 120;
+let chunkOverlap = 20;
+
+function init(){
+  const saved = localStorage.getItem('rag_kb');
+  docs = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_DOCS));
+  saveKB();
+  renderDocList();
+  updateStats();
+}
+
+function saveKB(){
+  localStorage.setItem('rag_kb', JSON.stringify(docs));
+  updateStats();
+}
+
+function renderDocList(){
+  const el = document.getElementById('docList');
+  el.innerHTML = docs.map(d=>`
+    <div class="doc-item ${d.id===selectedDocId?'active':''}" onclick="selectDoc('${d.id}')">
+      <div class="doc-name">${d.name}</div>
+      <div class="doc-meta">청크 <span>${getChunks(d.content).length}</span>개 · ${d.content.length}자
+        <button class="btn btn-danger" onclick="event.stopPropagation();removeDoc('${d.id}')">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectDoc(id){
+  selectedDocId = id;
+  renderDocList();
+  const doc = docs.find(d=>d.id===id);
+  if(!doc) return;
+  document.getElementById('chunkTitle').textContent = `청크 뷰어 — ${doc.name}`;
+  const chunks = getChunks(doc.content);
+  document.getElementById('chunkCount').textContent = `총 ${chunks.length}개 청크 (크기:${chunkSize}자, 오버랩:${chunkOverlap}자)`;
+  document.getElementById('chunkArea').innerHTML = chunks.map((c,i)=>`
+    <div class="chunk-card">
+      <div class="chunk-id">CHUNK_${id}_${String(i+1).padStart(3,'0')}</div>
+      <div class="chunk-text">${escapeHtml(c)}</div>
+      <div class="chunk-score">${c.length}자</div>
+    </div>
+  `).join('');
+}
+
+function getChunks(text){
+  const chunks = [];
+  const step = Math.max(1, chunkSize - chunkOverlap);
+  for(let i=0; i<text.length; i+=step){
+    const chunk = text.slice(i, i+chunkSize);
+    if(chunk.trim()) chunks.push(chunk);
+    if(i+chunkSize >= text.length) break;
+  }
+  return chunks;
+}
+
+function updateChunkConfig(){
+  chunkSize = parseInt(document.getElementById('chunkSize').value);
+  chunkOverlap = parseInt(document.getElementById('chunkOverlap').value);
+  document.getElementById('chunkSizeVal').textContent = chunkSize;
+  document.getElementById('chunkOverlapVal').textContent = chunkOverlap;
+  if(selectedDocId) selectDoc(selectedDocId);
+  updateStats();
+}
+
+function addDocument(){
+  const name = document.getElementById('newDocName').value.trim();
+  const content = document.getElementById('newDocContent').value.trim();
+  if(!name || !content){ alert('제목과 내용을 모두 입력해주세요.'); return; }
+  const id = 'doc_'+Date.now();
+  docs.push({id, name, content});
+  saveKB();
+  renderDocList();
+  document.getElementById('newDocName').value='';
+  document.getElementById('newDocContent').value='';
+  addLog(`[KB] 문서 추가: "${name}" (${getChunks(content).length}청크)`, 'ok');
+}
+
+function removeDoc(id){
+  if(!confirm('문서를 삭제하시겠습니까?')) return;
+  const doc = docs.find(d=>d.id===id);
+  docs = docs.filter(d=>d.id!==id);
+  if(selectedDocId===id){ selectedDocId=null; document.getElementById('chunkArea').innerHTML=''; document.getElementById('chunkTitle').textContent='청크 뷰어 — 문서를 선택하세요'; }
+  saveKB();
+  renderDocList();
+  addLog(`[KB] 문서 삭제: "${doc?.name}"`, 'warn');
+}
+
+function runSearch(){
+  const query = document.getElementById('queryInput').value.trim();
+  if(!query){ alert('쿼리를 입력하세요.'); return; }
+  addLog(`[QUERY] "${query}"`, 'info');
+  addLog('[STEP 1] 쿼리 토크나이징...', '');
+  addLog('[STEP 2] TF-IDF 유사도 계산 중...', '');
+
+  const results = [];
+  const queryTokens = tokenize(query);
+
+  docs.forEach(doc=>{
+    const chunks = getChunks(doc.content);
+    chunks.forEach((chunk, i)=>{
+      const score = cosineSim(queryTokens, tokenize(chunk));
+      if(score > 0) results.push({doc:doc.name, docId:doc.id, chunkIdx:i, text:chunk, score});
+    });
+  });
+
+  results.sort((a,b)=>b.score-a.score);
+  const top = results.slice(0,5);
+
+  addLog(`[STEP 3] 검색 완료 — ${results.length}개 후보 중 상위 ${top.length}개 추출`, 'ok');
+
+  const topScore = top[0] ? (top[0].score*100).toFixed(1)+'%' : '—';
+  document.getElementById('statLastQuery').textContent = query.slice(0,10)+(query.length>10?'…':'');
+  document.getElementById('statTopScore').textContent = topScore;
+
+  const ra = document.getElementById('resultArea');
+  if(top.length===0){
+    ra.innerHTML='<div style="color:#64748b;font-size:12px;text-align:center;padding:20px;">관련 청크를 찾지 못했습니다.</div>';
+    return;
+  }
+
+  ra.innerHTML = top.map((r,i)=>`
+    <div class="result-card">
+      <div class="result-rank">#${i+1} · ${(r.score*100).toFixed(1)}% 유사도</div>
+      <div class="result-doc">${r.doc} · CHUNK_${r.docId}_${String(r.chunkIdx+1).padStart(3,'0')}</div>
+      <div class="result-text">${highlight(escapeHtml(r.text), queryTokens)}</div>
+      <div class="result-score-bar"><div class="result-score-fill" style="width:${(r.score*100).toFixed(0)}%"></div></div>
+    </div>
+  `).join('');
+
+  localStorage.setItem('rag_last_results', JSON.stringify(top));
+  addLog('[STEP 4] 결과 저장 완료 (chatbot_ui 연동 가능)', 'ok');
+}
+
+function tokenize(text){
+  const tokens = {};
+  const words = text.replace(/[^\w가-힣]/g,' ').split(/\s+/).filter(w=>w.length>1);
+  words.forEach(w=>{ tokens[w]=(tokens[w]||0)+1; });
+  return tokens;
+}
+
+function cosineSim(a, b){
+  const keys = new Set([...Object.keys(a),...Object.keys(b)]);
+  let dot=0, magA=0, magB=0;
+  keys.forEach(k=>{
+    const va=a[k]||0, vb=b[k]||0;
+    dot+=va*vb; magA+=va*va; magB+=vb*vb;
+  });
+  if(!magA||!magB) return 0;
+  return dot/Math.sqrt(magA*magB);
+}
+
+function highlight(text, tokens){
+  let result = text;
+  Object.keys(tokens).forEach(k=>{
+    if(k.length<2) return;
+    result = result.replace(new RegExp(k,'g'),`<em style="background:#1e3a52;color:#7dd3fc;font-style:normal;">${k}</em>`);
+  });
+  return result;
+}
+
+function escapeHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function addLog(msg, type){
+  const el = document.getElementById('pipelineLog');
+  const d = document.createElement('div');
+  d.className = 'log-line '+(type||'');
+  d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+function updateStats(){
+  const totalChunks = docs.reduce((s,d)=>s+getChunks(d.content).length,0);
+  document.getElementById('statDocs').textContent = docs.length;
+  document.getElementById('statChunks').textContent = totalChunks;
+}
+
+init();
+</script>
+</body>
+</html>
