@@ -82,6 +82,11 @@ a.hbtn{text-decoration:none;}
 .ctx-stats{border-top:1px solid #e2e8f0;padding:10px 16px;font-size:11px;color:#94a3b8;}
 .ctx-stats div{margin-bottom:4px;}
 .ctx-stats strong{color:#374151;}
+.token-bar{background:#f8fafc;border-top:1px solid #e2e8f0;padding:6px 16px;font-size:10px;color:#94a3b8;display:flex;gap:12px;flex-wrap:wrap;}
+.token-bar span{display:flex;gap:3px;}
+.token-bar strong{color:#6366f1;}
+.token-bar .cache{color:#22c55e;}
+.token-bar .cost{color:#f59e0b;font-weight:700;}
 
 /* Settings modal */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center;}
@@ -148,6 +153,12 @@ a.hbtn{text-decoration:none;}
       <div>문서: <strong id="statDocs">—</strong></div>
       <div>청크: <strong id="statChunks">—</strong></div>
       <div>최고 유사도: <strong id="statTop">—</strong></div>
+    </div>
+    <div class="token-bar" id="tokenBar" style="display:none;">
+      <span>입력 <strong id="tokIn">—</strong></span>
+      <span>출력 <strong id="tokOut">—</strong></span>
+      <span class="cache">캐시 <strong id="tokCache">—</strong></span>
+      <span class="cost">≈$<strong id="tokCost">—</strong></span>
     </div>
   </div>
 </div>
@@ -326,6 +337,7 @@ async function sendMessage(){
     if(!r.ok) throw new Error(data.error||`오류 ${r.status}`);
     const sources=[...new Set(chunks.map(c=>c.doc))];
     appendBotMsg(escHtml(data.answer).replace(/\n/g,'<br>'), sources, false);
+    if(data.usage) showTokenUsage(data.usage);
     resetPipeline('완료');
   }catch(err){
     removeTyping();
@@ -402,6 +414,16 @@ function showCtx(chunks){
       <div class="ctx-text">${escHtml(c.text)}</div>
       <div class="ctx-bar"><div class="ctx-fill" style="width:${Math.min(100,c.score*100).toFixed(0)}%"></div></div>
     </div>`).join('');
+}
+
+function showTokenUsage(u){
+  // Haiku 요금: 입력 $0.80/MTok, 출력 $4.00/MTok, 캐시읽기 $0.08/MTok
+  const cost = ((u.input - u.cache_read) * 0.0000008 + u.cache_read * 0.00000008 + u.output * 0.000004).toFixed(5);
+  document.getElementById('tokIn').textContent = u.input;
+  document.getElementById('tokOut').textContent = u.output;
+  document.getElementById('tokCache').textContent = u.cache_read ? `읽기 ${u.cache_read}` : '0';
+  document.getElementById('tokCost').textContent = cost;
+  document.getElementById('tokenBar').style.display = 'flex';
 }
 
 function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
